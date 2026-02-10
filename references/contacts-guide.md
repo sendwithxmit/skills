@@ -40,7 +40,7 @@ curl "https://api.xmit.sh/api/contacts?limit=25&offset=0&q=alice" \
 
 Query parameters:
 - `q` - Search by name or email
-- `limit` - Results per page (default 50, max 100)
+- `limit` - Results per page (default 50, max 1000)
 - `offset` - Skip N results
 
 ## Get a Contact
@@ -62,11 +62,52 @@ curl -X PUT https://api.xmit.sh/api/contacts/con_xxxxx \
   }'
 ```
 
+## Unsubscribe a Contact
+
+```bash
+curl -X POST https://api.xmit.sh/api/contacts/con_xxxxx/unsubscribe \
+  -H "Authorization: Bearer $TRANSMIT_API_KEY"
+```
+
 ## Delete a Contact
 
 ```bash
 curl -X DELETE https://api.xmit.sh/api/contacts/con_xxxxx \
   -H "Authorization: Bearer $TRANSMIT_API_KEY"
+```
+
+## Bulk Delete Contacts
+
+Delete up to 500 contacts at once by passing their IDs.
+
+```bash
+curl https://api.xmit.sh/api/contacts/bulk-delete \
+  -H "Authorization: Bearer $TRANSMIT_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{ "ids": ["con_xxxxx", "con_yyyyy"] }'
+```
+
+## Import Contacts
+
+Import contacts with full metadata support. Existing emails are skipped automatically. Optionally add all imported contacts to a list.
+
+```bash
+curl https://api.xmit.sh/api/contacts/import \
+  -H "Authorization: Bearer $TRANSMIT_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "contacts": [
+      { "email": "alice@example.com", "firstName": "Alice", "metadata": { "plan": "pro" } },
+      { "email": "bob@example.com", "firstName": "Bob" }
+    ],
+    "listId": "lst_xxxxx"
+  }'
+```
+
+Response:
+
+```json
+{ "created": 2, "skipped": 0, "errors": [] }
 ```
 
 ## Common Patterns

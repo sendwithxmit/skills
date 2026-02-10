@@ -65,7 +65,7 @@ Response:
 
 | Field | Type | Required | Description |
 |-------|------|----------|-------------|
-| `to` | string or string[] | Yes | Recipient email(s) |
+| `to` | string or string[] | Yes | Recipient email(s), max 50 total (to + cc + bcc) |
 | `subject` | string | Yes | Subject line |
 | `html` | string | If no templateId | HTML body |
 | `from` | string | If no senderId | Sender email (e.g., `Name <hello@example.com>`) |
@@ -78,7 +78,7 @@ Response:
 | `headers` | object | No | Custom email headers |
 | `inReplyTo` | string | No | Message-ID for threading |
 | `references` | string | No | Thread Message-IDs (space-separated) |
-| `attachments` | array | No | File attachments |
+| `attachments` | array | No | File attachments (max 5MB each, 7MB total) |
 | `templateId` | string | No | Template ID (replaces html/text) |
 | `variables` | object | No | Template variable substitutions |
 | `metadata` | object | No | Custom key-value data |
@@ -169,10 +169,6 @@ List all senders.
 ### PUT /api/senders/:id
 
 Update sender name or replyTo.
-
-### PUT /api/senders/:id/default
-
-Set a sender as the workspace default.
 
 ### DELETE /api/senders/:id
 
@@ -276,9 +272,41 @@ Get contact details.
 
 Update contact fields.
 
+### POST /api/contacts/:id/unsubscribe
+
+Mark a contact as unsubscribed.
+
 ### DELETE /api/contacts/:id
 
 Delete a contact.
+
+### POST /api/contacts/bulk-delete
+
+Delete multiple contacts at once (max 500).
+
+```bash
+curl https://api.xmit.sh/api/contacts/bulk-delete \
+  -H "Authorization: Bearer $TRANSMIT_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{ "ids": ["con_xxxxx", "con_yyyyy"] }'
+```
+
+### POST /api/contacts/import
+
+Bulk import contacts with full metadata support. Handles deduplication automatically. Optionally add all imported contacts to a list.
+
+```bash
+curl https://api.xmit.sh/api/contacts/import \
+  -H "Authorization: Bearer $TRANSMIT_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "contacts": [
+      { "email": "alice@example.com", "firstName": "Alice", "metadata": { "plan": "pro" } },
+      { "email": "bob@example.com", "firstName": "Bob" }
+    ],
+    "listId": "lst_xxxxx"
+  }'
+```
 
 ---
 
@@ -300,10 +328,11 @@ All errors return JSON:
 | 401 | Invalid or missing API key |
 | 403 | Feature not available on your plan, or limit exceeded |
 | 404 | Resource not found |
+| 409 | Duplicate resource (e.g., contact or sender already exists) |
 | 429 | Rate limited (back off and retry with exponential delay) |
 | 500 | Server error |
 
-**Pagination:** List endpoints accept `limit` (default 50, max 100) and `offset`:
+**Pagination:** List endpoints accept `limit` (default 50, max 1000) and `offset`:
 
 ```bash
 curl "https://api.xmit.sh/api/contacts?limit=25&offset=50" \

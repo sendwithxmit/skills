@@ -34,7 +34,7 @@ curl https://api.xmit.sh/email/send \
 
 | Field | Type | Required | Notes |
 |-------|------|----------|-------|
-| `to` | string or string[] | Yes | One or more recipients |
+| `to` | string or string[] | Yes | One or more recipients (max 50 total with cc + bcc) |
 | `subject` | string | Yes | Subject line |
 | `html` | string | If no templateId | HTML body |
 | `from` | string | If no senderId | Sender email (e.g., `Name <email@domain.com>`) |
@@ -47,7 +47,7 @@ curl https://api.xmit.sh/email/send \
 | `headers` | object | No | Custom headers (e.g., `X-Entity-Ref-ID`) |
 | `inReplyTo` | string | No | For email threading |
 | `references` | string | No | Thread references (space-separated) |
-| `attachments` | array | No | File attachments (see below) |
+| `attachments` | array | No | File attachments, max 5MB each, 7MB total (see below) |
 | `templateId` | string | No | Template to render |
 | `variables` | object | No | Template variable values |
 | `metadata` | object | No | Custom key-value data |
@@ -168,13 +168,6 @@ curl https://api.xmit.sh/api/senders \
   -H "Authorization: Bearer $TRANSMIT_API_KEY"
 ```
 
-### Set Default Sender
-
-```bash
-curl -X PUT https://api.xmit.sh/api/senders/snd_xxxxx/default \
-  -H "Authorization: Bearer $TRANSMIT_API_KEY"
-```
-
 ## Email Threading
 
 To create email threads (conversation view in recipients' inboxes), use `inReplyTo` and `references`:
@@ -201,5 +194,5 @@ curl https://api.xmit.sh/email/send \
 | 400 | Missing required fields or invalid format |
 | 401 | Invalid API key |
 | 403 | Plan limit exceeded or feature unavailable |
-| 422 | Recipient is suppressed |
+| 409 | Duplicate resource (sender or contact already exists) |
 | 500 | Server error (retry with backoff) |
