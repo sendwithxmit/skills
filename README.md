@@ -8,8 +8,11 @@ Gives AI agents the ability to:
 
 - Send transactional emails via REST API
 - Create and manage email templates
+- Create and manage marketing campaigns
+- Manage contact lists and suppressions
 - Set up sender identities
 - Sync contacts from your application
+- View sent message history and delivery events
 
 ## Install
 
@@ -39,15 +42,34 @@ curl https://api.xmit.sh/email/send \
   }'
 ```
 
+## Also Available: MCP Server
+
+For structured tool access (instead of API knowledge), use the Transmit MCP server:
+
+```json
+{
+  "mcpServers": {
+    "transmit": {
+      "url": "https://mcp.xmit.sh/mcp"
+    }
+  }
+}
+```
+
+See [MCP docs](https://xmit.sh/docs/ai/mcp) for details.
+
 ## Reference Guides
 
 See the `references/` directory for detailed guides:
 
 - **api-sending-guide.md** - Sending emails, templates, senders, attachments, threading
 - **contacts-guide.md** - Contact management and sync patterns
+- **campaigns-guide.md** - Campaign lifecycle, scheduling, cloning, archive publishing
+- **lists-guide.md** - Contact list management, adding/removing members
+- **suppressions-guide.md** - Suppression management, checking addresses, re-enabling
 
 ## Links
 
 - [Transmit Website](https://xmit.sh)
-- [API Documentation](https://xmit.sh/docs/api)
+- [Documentation](https://xmit.sh/docs)
 - [Dashboard](https://xmit.sh/dashboard)
